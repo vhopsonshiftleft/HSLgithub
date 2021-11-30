@@ -18,12 +18,13 @@ jobs:
       run: mvn clean package
 
     - name: Perform Analysis
-      run: ./sl analyze --java --app HSLgithub --cpg --tag branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} --wait target/hello-shiftleft-0.0.1.jar
+      run: ./sl analyze --java --app HSLgithub --cpg --tag branch=${{ github.head_ref || steps.extract_branch.outputs.branch || "master"}} --wait target/hello-shiftleft-0.0.1.jar
       env:
         SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
 
     - name: Check Application Security Stance
       run: ./sl check-analysis --app HSLgithub --app HSLgithub \
+        --target "${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
         --branch "${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
         --report \
         --github-pr-number=${{ github.event.number }} \
