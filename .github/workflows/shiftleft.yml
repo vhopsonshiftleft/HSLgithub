@@ -28,7 +28,7 @@ jobs:
     - name: Check Application Security Stance
       run: |
         ./sl check-analysis --app HSLgithub \
-        --target "${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
+        --target tag.branch="${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
         --branch "${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
         --report \
         --github-pr-number=${{ github.event.number }} \
