@@ -5,7 +5,6 @@ on:
   workflow_dispatch:
 
 env:
-  SCAN_ID: 0
   SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
   
 jobs:
@@ -23,12 +22,12 @@ jobs:
 
     - name: Perform Analysis
       run: |
-        export env.SCAN_ID=`./sl analyze --java --app HSLgithub --cpg --tag \
+        export SCAN_ID=`./sl analyze --java --app HSLgithub --cpg --tag \
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
         --wait target/hello-shiftleft-0.0.1.jar`
 
     - name: Check Application Security Stance
       run: |
-        ./sl check-analysis --app HSLgithub --verbose --target scan.${{env.SCAN_ID}}
+        ./sl check-analysis --app HSLgithub --verbose --target scan.${SCAN_ID}
         
         
