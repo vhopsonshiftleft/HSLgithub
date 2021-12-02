@@ -4,6 +4,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+env:
+  SCAN_ID: 0
+  SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+  
 jobs:
   NextGen-Static-Analysis:
     runs-on: ubuntu-latest
@@ -15,26 +19,16 @@ jobs:
       run: curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
 
     - name: Build JAR
-      run: mvn clean package
+      run: mvn clean install
 
     - name: Perform Analysis
       run: |
-        ./sl analyze --java --app HSLgithub --cpg --tag \
+        export SCAN_ID=`./sl analyze --java --app HSLgithub --cpg --tag \
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
-        --wait target/hello-shiftleft-0.0.1.jar
-      env:
-        SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+        --wait target/hello-shiftleft-0.0.1.jar`
 
     - name: Check Application Security Stance
       run: |
-        ./sl check-analysis --app HSLgithub \
-        --target tag.branch="${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
-        --branch "${{ github.head_ref || steps.extract_branch.outputs.branch }}" \
-        --report \
-        --github-pr-number=${{ github.event.number }} \
-        --github-pr-user=${{ github.repository_owner }} \
-        --github-pr-repo=${{ github.event.repository.name }} \
-        --github-token=${{ secrets.GITHUB_TOKEN }}
-
-      env:
-        SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+        ./sl check-analysis --app HSLgithub --verbose --target scan.$SCAN_ID 
+        
+        
