@@ -26,7 +26,7 @@ jobs:
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
         --wait target/hello-shiftleft-0.0.1.jar`
         echo -e $SCAN_ID > scan_id
-        echo -d "Scan Id is " $SCAN_ID
+        echo -d "Scan Id is " `cat scan_id`
 
     - name: Check Application Security Stance
       run: |
