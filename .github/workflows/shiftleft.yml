@@ -22,13 +22,13 @@ jobs:
 
     - name: Perform Analysis
       run: |
-        export SCAN_ID=$(./sl analyze --java --app HSLgithub --cpg --tag \
+        export SCANID=$(./sl analyze --java --app HSLgithub --cpg --tag \
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
         --wait target/hello-shiftleft-0.0.1.jar)
-        echo "::set-env name=SCAN_ID::$SCAN_ID"
+        echo "::set-env name=SCANID::$SCANID"
 
     - name: Check Application Security Stance
       run: |
-        ./sl check-analysis --app HSLgithub --verbose --target scan.$SCAN_ID
+        ./sl check-analysis --app HSLgithub --verbose --target scan.$SCANID
         
         
