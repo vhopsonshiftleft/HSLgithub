@@ -23,7 +23,7 @@ jobs:
 
     - name: Perform Analysis
       run: |
-        export ${{env.SCAN_ID}}=`./sl analyze --java --app HSLgithub --cpg --tag \
+        export env.SCAN_ID=`./sl analyze --java --app HSLgithub --cpg --tag \
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
         --wait target/hello-shiftleft-0.0.1.jar`
 
