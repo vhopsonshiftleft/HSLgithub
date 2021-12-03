@@ -54,4 +54,10 @@ jobs:
     - name: Failure of any previous step processing
       if: ${{ failure() }}
       run: |
-        echo -e "Something died."
+        curl -X POST -H "Accept: application/vmd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{ "context": "ShiftLeft/Analysis", "description": "Security posture -- invalid", "state": "failure" }'
+        gawk -f fmt.awk check_analysis.txt > error_body.txt
+        curl -X POST -H "Accept: application/vmd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.COMMENT_URL }} \
+          -d "@error_body.txt"
