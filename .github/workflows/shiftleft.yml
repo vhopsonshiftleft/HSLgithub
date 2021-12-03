@@ -22,9 +22,9 @@ jobs:
 
     - name: Perform Analysis
       run: |
-        export SCANID=$(./sl analyze --java --app HSLgithub --cpg --tag \
+        export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
-        --wait target/hello-shiftleft-0.0.1.jar)
+        --wait target/hello-shiftleft-0.0.1.jar )
         echo -e "\n\n\nScan ID = $SCANID\n\n"
-        ./check_analysis.sh 
-        
+        export RET_VAL=$( ./sl check-analysis --app HSLgithub --target scan.$SCANID )
+        echo "SL Check Analysis returned $RET_VAL"
