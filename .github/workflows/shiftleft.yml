@@ -24,7 +24,11 @@ jobs:
       run: |
         export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
-        --wait target/hello-shiftleft-0.0.1.jar )
+        --wait target/hello-shiftleft-0.0.1.jar | \
+        grep -i "The Scan ID for" | \
+        cut -d ' ' -f8 )
         echo -e "\n\n\nScan ID = $SCANID\n\n"
-        export RET_VAL=$( ./sl check-analysis --app HSLgithub --target scan.$SCANID )
-        echo "SL Check Analysis returned $RET_VAL"
+        echo -e "SCANID=$SCANID" >> $GITHUB_ENV
+      
+    - name: Evaluate Security Posture
+        ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }}
