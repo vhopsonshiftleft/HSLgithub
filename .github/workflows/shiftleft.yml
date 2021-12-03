@@ -17,9 +17,6 @@ jobs:
     - name: Download ShiftLeft CLI
       run: curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
 
-    - name: Build JAR
-      run: mvn clean install
-      
     - name: Set up Environment for Analysis
       run: |
         export STATUS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
@@ -27,6 +24,13 @@ jobs:
         export COMMENT_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.number }}/comments"
         echo -e "COMMENT_URL=$COMMENT_URL" >> $GITHUB_ENV
 
+    - name: Build JAR
+      run: |
+        mvn clean install
+        curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{"context": "Build JAR", "description": "Build succeeded", "state": "success" }'
+      
     - name: Perform Analysis
       run: |
         export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
@@ -37,15 +41,17 @@ jobs:
         echo -e "\n\n\nScan ID = $SCANID\n\n"
         echo -e "SCANID=$SCANID" >> $GITHUB_ENV
         curl -X POST -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization: Bearer ${{secrets.PERSONAL_ACCESS_TOKEN}}" \
-          ${{ env.STATUS_URL }} -d '{ "context": "Analysis Generation", "description": "Analysis generation succeeded", "state": "success" }'
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{ "context": "Analysis Generation", "description": "Analysis generation succeeded", "state": "success" }'
       
     - name: Evaluate Security Posture
       run: |
-        if {{ $( ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }} ) }} ; then
-          echo -e "The positive branch was taken"
-        else
-          echo -e "Fail branch was taken"
+        ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }} > check_analysis.txt 2>&1
+        curl -X POST -H "Accept: application/vmd.github.v3+json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{ "context": "Security Posture", "description": "Security posture -- Secure", "state": "success" }'
           
-          
-          
+    - name: Failure of any previous step processing
+      if: ${{ failure() }}
+      run: |
+        echo -e "Something died."
