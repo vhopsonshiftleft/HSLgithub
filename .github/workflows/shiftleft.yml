@@ -27,7 +27,7 @@ jobs:
     - name: Build JAR
       run: |
         mvn clean install
-        curl -X POST -H "Accept: application/vnd.github.v3+json" \
+        curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
           -d '{"context": "Build JAR", "description": "Build succeeded", "state": "success" }'
       
@@ -40,24 +40,24 @@ jobs:
           cut -d ' ' -f8 )
         echo -e "\n\n\nScan ID = $SCANID\n\n"
         echo -e "SCANID=$SCANID" >> $GITHUB_ENV
-        curl -X POST -H "Accept: application/vnd.github.v3+json" \
+        curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
           -d '{ "context": "Analysis Generation", "description": "Analysis generation succeeded", "state": "success" }'
       
     - name: Evaluate Security Posture
       run: |
         ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }} > check_analysis.txt 2>&1
-        curl -X POST -H "Accept: application/vmd.github.v3+json" \
+        curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
           -d '{ "context": "Security Posture", "description": "Security posture -- Secure", "state": "success" }'
           
     - name: Failure of any previous step processing
       if: ${{ failure() }}
       run: |
-        curl -X POST -H "Accept: application/vmd.github.v3+json" \
+        curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
           -d '{ "context": "ShiftLeft/Analysis", "description": "Security posture -- invalid", "state": "failure" }'
         gawk -f fmt.awk check_analysis.txt > error_body.txt
-        curl -X POST -H "Accept: application/vmd.github.v3+json" \
+        curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.COMMENT_URL }} \
           -d "@error_body.txt"
