@@ -26,6 +26,6 @@ jobs:
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
         --wait target/hello-shiftleft-0.0.1.jar)
         echo -e "\n\n\nScan ID = $SCANID\n\n"
-        #./sl check-analysis --app HSLgithub --target scan.$SCANID
+        ./sl check-analysis --app HSLgithub --target "scan.$SCANID"
         
         
