@@ -25,6 +25,6 @@ jobs:
         export SCANID=$(./sl analyze --java --app HSLgithub --cpg --tag \
         branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
         --wait target/hello-shiftleft-0.0.1.jar)
-        ./sl check-analysis --app HSLgithub --target scan.$SCANID
+        ./sl check-analysis --app HSLgithub --target scan.${env.SCANID}
         
         
