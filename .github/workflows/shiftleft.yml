@@ -19,17 +19,33 @@ jobs:
 
     - name: Build JAR
       run: mvn clean install
+      
+    - name: Set up Environment for Analysis
+      run: |
+        export STATUS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
+        echo -e "STATUS_URL=$STATUS_URL" >> $GITHUB_ENV
+        export COMMENT_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.number }}/comments"
+        echo -e "COMMENT_URL=$COMMENT_URL" >> $GITHUB_ENV
 
     - name: Perform Analysis
       run: |
         export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
-        branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
-        --wait target/hello-shiftleft-0.0.1.jar | \
-        grep -i "The Scan ID for" | \
-        cut -d ' ' -f8 )
+          branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
+          --wait target/hello-shiftleft-0.0.1.jar | \
+          grep -i "The Scan ID for" | \
+          cut -d ' ' -f8 )
         echo -e "\n\n\nScan ID = $SCANID\n\n"
         echo -e "SCANID=$SCANID" >> $GITHUB_ENV
+        curl -X POST -H "Accept: application/vnd.github.v3+json" \
+          -H "Authorization: Bearer ${{secrets.PERSONAL_ACCESS_TOKEN}}" \
+          ${{ env.STATUS_URL }} -d '{ "context": "Analysis Generation", "description": "Analysis generation succeeded", "state": "success" }'
       
     - name: Evaluate Security Posture
       run: |
-        ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }}
+        if {{ $( ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }} ) }} ; then
+          echo -e "The positive branch was taken"
+        else
+          echo -e "Fail branch was taken"
+          
+          
+          
