@@ -31,4 +31,5 @@ jobs:
         echo -e "SCANID=$SCANID" >> $GITHUB_ENV
       
     - name: Evaluate Security Posture
+      run: |
         ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }}
