@@ -12,17 +12,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-    - uses: actions/checkout@v2
-
-    - name: Download ShiftLeft CLI
-      run: curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
-
     - name: Set up Environment for Analysis
       run: |
         export STATUS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
         echo -e "STATUS_URL=$STATUS_URL" >> $GITHUB_ENV
         export COMMENT_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.number }}/comments"
         echo -e "COMMENT_URL=$COMMENT_URL" >> $GITHUB_ENV
+
+    - uses: actions/checkout@v2
+
+    - name: Download ShiftLeft CLI
+      run: |
+        curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
+        curl -X POST -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{"context": "Set Build Environment", \
+               "description": "Create working build environment", "state": "success" }'
 
     - name: Build JAR
       run: |
@@ -49,7 +54,7 @@ jobs:
         ./sl check-analysis --app HSLgithub --target scan.${{ env.SCANID }} > check_analysis.txt 2>&1
         curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
-          -d '{ "context": "Security Posture", "description": "Security posture -- Secure", "state": "success" }'
+          -d '{ "context": "Security Posture Check", "description": "Security posture -- OK", "state": "success" }'
           
     - name: Failure of any previous step processing
       if: ${{ failure() }}
