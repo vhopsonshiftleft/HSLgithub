@@ -1,4 +1,4 @@
-name: Create the Baseline for Static Analysis
+name: Create Baseline for Static Analysis
 
 on:
   workflow_dispatch:
@@ -44,12 +44,4 @@ jobs:
         export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
           branch=master \
           --wait target/hello-shiftleft-0.0.1.jar | \
-          grep -i "The Scan ID for" | \
-          cut -d ' ' -f8 )
-        echo -e "\n\n\nScan ID = $SCANID\n\n"
-        echo -e "SCANID=$SCANID" >> $GITHUB_ENV
-        curl -X POST -H "Accept: application/json" \
-          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
-          -d '{ "context": "Baseline analysis Generation", \
-                "description": "Baseline analysis generation succeeded", "state": "success" }'
       
