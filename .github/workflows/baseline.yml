@@ -41,7 +41,5 @@ jobs:
       
     - name: Perform Analysis
       run: |
-        export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
-          branch=master \
-          --wait target/hello-shiftleft-0.0.1.jar | \
+        ./sl analyze --java --app HSLgithub --cpg --tag branch=master --wait target/hello-shiftleft-0.0.1.jar
       
