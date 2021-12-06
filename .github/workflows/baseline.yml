@@ -42,7 +42,7 @@ jobs:
     - name: Perform Analysis
       run: |
         export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
-          branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
+          branch=master \
           --wait target/hello-shiftleft-0.0.1.jar | \
           grep -i "The Scan ID for" | \
           cut -d ' ' -f8 )
