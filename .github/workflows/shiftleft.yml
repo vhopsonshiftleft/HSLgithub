@@ -20,8 +20,7 @@ jobs:
         echo -e "COMMENT_URL=$COMMENT_URL" >> $GITHUB_ENV
         curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" $STATUS_URL \
-          -d '{ "context": "Set Build Environment", \
-               "description": "Create working build environment", "state": "success" }'
+          -d '{ "context": "Set Build Environment", "description": "Create working build environment", "state": "success" }'
 
     - uses: actions/checkout@v2
 
@@ -30,8 +29,7 @@ jobs:
         curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
         curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
-          -d '{ "context": "Download ShiftLeft", \
-               "description": "Download ShiftLeft NGSAST CPG generation agent", "state": "success" }'
+          -d '{ "context": "Download ShiftLeft", "description": "Download ShiftLeft NGSAST CPG generation agent", "state": "success" }'
 
     - name: Build JAR
       run: |
