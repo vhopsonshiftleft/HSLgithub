@@ -1,0 +1,55 @@
+name: Create the Baseline for Static Analysis
+
+on:
+  workflow_dispatch:
+
+env:
+  SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
+  
+jobs:
+  NextGen-Static-Analysis:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Set up Environment for Analysis
+      run: |
+        export STATUS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_SHA}"
+        echo -e "STATUS_URL=$STATUS_URL" >> $GITHUB_ENV
+        export COMMENT_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.number }}/comments"
+        echo -e "COMMENT_URL=$COMMENT_URL" >> $GITHUB_ENV
+        curl -X POST -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" $STATUS_URL \
+          -d '{"context": "Set Build Environment", \
+               "description": "Create working build environment", "state": "success" }'
+
+    - uses: actions/checkout@v2
+
+    - name: Download ShiftLeft CLI
+      run: |
+        curl https://cdn.shiftleft.io/download/sl > ${GITHUB_WORKSPACE}/sl && chmod a+rx ${GITHUB_WORKSPACE}/sl
+        curl -X POST -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{"context": "Download ShiftLeft", \
+               "description": "Download ShiftLeft NGSAST CPG generation agent", "state": "success" }'
+
+    - name: Build JAR
+      run: |
+        mvn clean install
+        curl -X POST -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{"context": "Build JAR", "description": "Build succeeded", "state": "success" }'
+      
+    - name: Perform Analysis
+      run: |
+        export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --tag \
+          branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
+          --wait target/hello-shiftleft-0.0.1.jar | \
+          grep -i "The Scan ID for" | \
+          cut -d ' ' -f8 )
+        echo -e "\n\n\nScan ID = $SCANID\n\n"
+        echo -e "SCANID=$SCANID" >> $GITHUB_ENV
+        curl -X POST -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
+          -d '{ "context": "Baseline analysis Generation", \
+                "description": "Baseline analysis generation succeeded", "state": "success" }'
+      
