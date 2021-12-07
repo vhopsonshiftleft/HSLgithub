@@ -12,11 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+    - uses: actions/checkout@v2
+
     - name: Set up Environment for Analysis
       run: |
-        echo -e "GitHub Ref: " $GITHUB_REF
-        export SHA=$(git rev-parse $GITHUB_REF)
-        echo -e "SHA=" $SHA
+        echo -e "GitHub SHA: " $GITHUB_SHA
+        echo -e "Branchname: " $(git name-rev $GITHUB_SHA)
         export STATUS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/$SHA"
         echo -e "STATUS_URL=$STATUS_URL" >> $GITHUB_ENV
         export COMMENT_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.number }}/comments"
@@ -24,8 +25,6 @@ jobs:
         curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" $STATUS_URL \
           -d '{ "context": "Set Build Environment", "description": "Create working build environment", "state": "success" }'
-
-    - uses: actions/checkout@v2
 
     - name: Download ShiftLeft CLI
       run: |
