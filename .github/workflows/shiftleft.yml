@@ -68,7 +68,7 @@ jobs:
       run: |
         curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.STATUS_URL }} \
-          -d '{ "context": "Security Posture Check", "description": "Security posture -- OK", "state": "failure" }'
+          -d '{ "context": "Security Posture Check", "description": "Security posture -- **BAD**", "state": "failure" }'
         gawk -f fmt.awk check_analysis.txt > error_body.txt
         curl -X POST -H "Accept: application/json" \
           -H "Authorization: Bearer ${{ secrets.PERSONAL_ACCESS_TOKEN }}" ${{ env.COMMENT_URL }} \
