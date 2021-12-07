@@ -14,7 +14,9 @@ jobs:
 
     - name: Set up Environment for Analysis
       run: |
-        export SHA=$(git rev-parse $GITHUB_HEAD_REF)
+        echo -e "GitHub Ref: " $GITHUB_REF
+        export SHA=$(git rev-parse $GITHUB_REF)
+        echo -e "SHA=" $SHA
         export STATUS_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/statuses/$SHA"
         echo -e "STATUS_URL=$STATUS_URL" >> $GITHUB_ENV
         export COMMENT_URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/issues/${{ github.event.number }}/comments"
