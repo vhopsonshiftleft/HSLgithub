@@ -1,7 +1,7 @@
 name: ShiftLeft No Sensitive Data
 
 on:
-  pull_request:
+  workflow_dispatch:
 
 env:
   SHIFTLEFT_ACCESS_TOKEN: ${{ secrets.SHIFTLEFT_ACCESS_TOKEN }}
