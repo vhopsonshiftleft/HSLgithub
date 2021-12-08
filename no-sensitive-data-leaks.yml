@@ -5,6 +5,6 @@ methods:
   #     - key: category
   #       value: Sensitive Data Leak
   - pattern: println
-    tags:
-      - key: category
-        value: Sensitive Data Leak
+    #    tags:
+    #  - key: category
+    #    value: Sensitive Data Leak
