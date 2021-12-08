@@ -41,5 +41,5 @@ jobs:
       
     - name: Perform Analysis
       run: |
-        ./sl analyze --java --app HSLgithub --sca --cpg --tag branch=master --wait target/hello-shiftleft-0.0.1.jar
+        ./sl analyze --java --app HSLgithub --sca --cpg --tag branch=master --remediation-config no-sensitive-data-leak.yml --wait target/hello-shiftleft-0.0.1.jar
       
