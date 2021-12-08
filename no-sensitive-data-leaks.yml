@@ -4,7 +4,7 @@ methods:
   #   tags:
   #     - key: category
   #       value: Sensitive Data Leak
-  # - pattern: Logger.debug
-  #   tags:
-  #     - key: category
-  #       value: Sensitive Data Leak
+  - pattern: println
+    tags:
+      - key: category
+        value: Sensitive Data Leak
