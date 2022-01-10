@@ -4,4 +4,3 @@ build_rules:
     - id: No_New_Defects
       finding_types:
         - vuln
-      threshold: 0
