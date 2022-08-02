@@ -46,7 +46,7 @@ jobs:
       run: |
         export SCANID=$( ./sl analyze --java --app HSLgithub --cpg --sca --tag \
           branch=${{ github.head_ref || steps.extract_branch.outputs.branch }} \
-          --container ubuntu:22.04 \
+          --container ubuntu:20.04 \
           --wait target/hello-shiftleft-0.0.1.jar | \
           grep -i "The Scan ID for" | \
           cut -d ' ' -f8 )
