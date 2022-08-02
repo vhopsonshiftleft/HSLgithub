@@ -301,8 +301,7 @@ public class CustomerController {
 
     customerRepository.save(customer1);
     httpResponse.setStatus(HttpStatus.CREATED.value());
-    httpResponse.setHeader("Location", String.format("%s/customers/%s",
-                           request.getContextPath(), customer1.getId()));
+    //httpResponse.setHeader("Location", String.format("%s/customers/%s", request.getContextPath(), customer1.getId()));
 
     return customer1.toString().toLowerCase().replace("script","");
   }
